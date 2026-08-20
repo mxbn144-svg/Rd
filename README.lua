@@ -25,25 +25,20 @@ local autoStartConnection = nil
 -- ----------------------------------------------
 local function applySpeed()
     if enabled then
-        -- Проверяем, сидит ли игрок в транспортном средстве
         local vehicle = Character:FindFirstChildOfClass("VehicleSeat")
         if vehicle then
-            -- Пытаемся управлять через BodyVelocity (если есть)
             local bv = vehicle:FindFirstChildOfClass("BodyVelocity")
             if bv then
                 bv.Velocity = Vector3.new(0, 0, -speedMultiplier * 50)
             else
-                -- Или через атрибут Throttle (для многих автомобилей)
                 vehicle:SetAttribute("Throttle", speedMultiplier)
             end
         else
-            -- Если пешком – меняем WalkSpeed
             if Humanoid then
                 Humanoid.WalkSpeed = 16 * speedMultiplier
             end
         end
     else
-        -- Сброс к стандартной скорости
         if Humanoid then
             Humanoid.WalkSpeed = 16
         end
@@ -68,7 +63,6 @@ local function autoStartCheck()
                 local txt = obj.Text or ""
                 if txt == "3" or txt == "2" or txt == "1" then
                     if txt == "1" then
-                        -- Включаем ускорение при появлении "1"
                         enabled = true
                         toggleSpeedBtn.Text = "On"
                         toggleSpeedBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
@@ -80,7 +74,6 @@ local function autoStartCheck()
         end
     end
 
-    -- Ищем во всех доступных GUI (CoreGui + PlayerGui)
     local coreGui = game:GetService("CoreGui")
     local playerGui = LP:WaitForChild("PlayerGui")
     searchInGUI(coreGui)
@@ -139,7 +132,6 @@ speedFrame.Position = UDim2.new(0, 20, 0, 40)
 speedFrame.BackgroundTransparency = 1
 speedFrame.Parent = mainMenu
 
--- Метка
 local speedLabel = Instance.new("TextLabel")
 speedLabel.Size = UDim2.new(0, 100, 0, 25)
 speedLabel.Position = UDim2.new(0, 0, 0, 0)
@@ -149,7 +141,6 @@ speedLabel.TextColor3 = Color3.new(1, 1, 1)
 speedLabel.TextScaled = true
 speedLabel.Parent = speedFrame
 
--- Кнопка "-"
 local minusBtn = Instance.new("TextButton")
 minusBtn.Size = UDim2.new(0, 35, 0, 35)
 minusBtn.Position = UDim2.new(0, 80, 0, 5)
@@ -159,7 +150,6 @@ minusBtn.TextColor3 = Color3.new(1, 1, 1)
 minusBtn.TextScaled = true
 minusBtn.Parent = speedFrame
 
--- Поле ввода значения
 local speedInput = Instance.new("TextBox")
 speedInput.Size = UDim2.new(0, 60, 0, 35)
 speedInput.Position = UDim2.new(0, 120, 0, 5)
@@ -171,7 +161,6 @@ speedInput.TextScaled = true
 speedInput.ClearTextOnFocus = false
 speedInput.Parent = speedFrame
 
--- Кнопка "+"
 local plusBtn = Instance.new("TextButton")
 plusBtn.Size = UDim2.new(0, 35, 0, 35)
 plusBtn.Position = UDim2.new(0, 185, 0, 5)
@@ -235,7 +224,6 @@ autoStartBtn.Parent = autoStartFrame
 -- ОБРАБОТЧИКИ СОБЫТИЙ
 -- ----------------------------------------------
 
--- Обновление множителя скорости
 local function updateSpeed()
     local val = tonumber(speedInput.Text) or 1.0
     if val < 0.1 then val = 0.1 end
@@ -264,7 +252,6 @@ speedInput.FocusLost:Connect(function()
     updateSpeed()
 end)
 
--- Включение/выключение ускорения
 toggleSpeedBtn.MouseButton1Click:Connect(function()
     enabled = not enabled
     toggleSpeedBtn.Text = enabled and "On" or "Off"
@@ -272,14 +259,12 @@ toggleSpeedBtn.MouseButton1Click:Connect(function()
     applySpeed()
 end)
 
--- Включение/выключение авто-старта
 autoStartBtn.MouseButton1Click:Connect(function()
     autoStartEnabled = not autoStartEnabled
     autoStartBtn.Text = autoStartEnabled and "On" or "Off"
     autoStartBtn.BackgroundColor3 = autoStartEnabled and Color3.fromRGB(50, 200, 50) or Color3.fromRGB(200, 50, 50)
 
     if autoStartEnabled then
-        -- Запускаем периодическую проверку (каждые 0.3 сек)
         if autoStartConnection then autoStartConnection:Disconnect() end
         autoStartConnection = game:GetService("RunService").Heartbeat:Connect(function()
             autoStartCheck()
@@ -292,17 +277,15 @@ autoStartBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Открыть/закрыть меню по кнопке
+-- *** ОТКРЫТИЕ / ЗАКРЫТИЕ МЕНЮ ***
 local menuVisible = false
 toggleButton.MouseButton1Click:Connect(function()
     menuVisible = not menuVisible
     mainMenu.Visible = menuVisible
 end)
 
--- Инициализация значения
 updateSpeed()
 
--- Переподключение при смене персонажа
 LP.CharacterAdded:Connect(function(newChar)
     Character = newChar
     Humanoid = Character:WaitForChild("Humanoid")
